@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ferrari — Showcase</title>
+  <meta name="description" content="Ferrari動画のデモページ。YouTube埋め込みまたはローカル動画のどちらでも表示できます。" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Ferrari — Showcase" />
+  <meta property="og:description" content="Ferrari動画のデモページ。高画質再生・レスポンシブレイアウト。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-image.jpg" />
+  <style>
+    :root{--bg:#0b0b0b;--card:#111;--accent:#c8102e;--muted:#bbb}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,#000 0%,#070707 100%);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .container{max-width:1100px;width:100%}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#4a0000);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:1.6rem;margin:0}
+    .meta{color:var(--muted);font-size:.95rem}
+    .card{background:rgba(255,255,255,0.03);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.6)}
+    .video-wrap{position:relative;padding-top:56.25%;overflow:hidden;border-radius:12px}
+    .video-wrap iframe,.video-wrap video{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:8px 12px;border-radius:8px;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:transparent;color:#fff}
+    .grid{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:18px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}}
+    .info p{margin:8px 0;color:var(--muted)}
+    .share{display:flex;gap:8px;margin-top:8px}
+    footer{color:var(--muted);font-size:.85rem;margin-top:14px}
+    .hint{font-size:.85rem;color:var(--muted);margin-top:10px}
+    .upload-input{display:flex;gap:8px;align-items:center}
+    input[type=file]{color:transparent}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">F</div>
+      <div>
+        <h1>Ferrari — Showcase</h1>
+        <div class="meta">高画質・レスポンシブ動画プレーヤーのサンプルページ</div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="video-wrap" id="player">
+        <!-- デフォルトはYouTube埋め込み。下のスイッチでローカル動画に切り替え可能 -->
+        <iframe id="youtubeFrame" src="https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        <video id="localVideo" controls style="display:none"></video>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="toggleSource">YouTube ⇄ ローカル切替</button>
+        <label class="btn" id="playPauseBtn">再生 / 一時停止</label>
+        <div class="upload-input">
+          <label class="btn">ローカル動画を選択<input type="file" id="fileInput" accept="video/*" style="display:none"></label>
+          <span id="fileName" class="hint">未選択</span>
+        </div>
+        <div style="flex:1"></div>
+        <a class="btn" id="downloadBtn" href="#" download="ferrari-video.mp4" style="display:none">動画をダウンロード</a>
+      </div>
+
+      <div class="grid">
+        <div class="info">
+          <h3>動画について</h3>
+          <p id="desc">ここに動画の説明を入れます。撮影日、カメラ、解説、使用楽曲のクレジットなどを記載してください。著作権に注意して公開してください。</p>
+
+          <h4>埋め込み設定</h4>
+          <p class="hint">YouTubeのVIDEO_IDを上のiframeのsrcに入れるか、ローカル動画をアップロードして切り替えてください。</p>
+
+          <div class="share">
+            <button class="btn" id="copyLink">ページURLをコピー</button>
+            <button class="btn" id="openInNew">新しいタブで開く</button>
+          </div>
+        </div>
+
+        <aside>
+          <h4>公開オプション</h4>
+          <p class="hint">• GitHub Pages / Netlify / Vercel のいずれかが手軽です。<br>• 商用利用や著作権のあるBGM・映像を使用する場合は許諾を得てください。</p>
+          <h4>メタデータ</h4>
+          <p>ID: <code id="videoId">VIDEO_ID</code></p>
+          <p>作者: <strong id="author">あなたの名前</strong></p>
+        </aside>
+      </div>
+
+      <footer>このページはサンプル。実際に公開する前に著作権・肖像権を必ず確認してください。</footer>
+    </div>
+  </div>
+
+  <script>
+    const youtubeFrame = document.getElementById('youtubeFrame');
+    const localVideo = document.getElementById('localVideo');
+    const toggleSource = document.getElementById('toggleSource');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const videoIdEl = document.getElementById('videoId');
+
+    let usingLocal = false;
+
+    toggleSource.addEventListener('click', ()=>{
+      usingLocal = !usingLocal;
+      updateView();
+    });
+
+    function updateView(){
+      if(usingLocal){
+        youtubeFrame.style.display='none';
+        localVideo.style.display='block';
+      } else {
+        youtubeFrame.style.display='block';
+        localVideo.style.display='none';
+      }
+    }
+
+    fileInput.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      fileName.textContent = file.name;
+      const url = URL.createObjectURL(file);
+      localVideo.src = url;
+      downloadBtn.href = url; downloadBtn.style.display='inline-block';
+      usingLocal = true; updateView();
+    });
+
+    playPauseBtn.addEventListener('click', ()=>{
+      if(usingLocal){
+        if(localVideo.paused) localVideo.play(); else localVideo.pause();
+      } else {
+        // YouTube iframe API would be required for precise control. For now open in new tab.
+        window.open(youtubeFrame.src,'_blank');
+      }
+    });
+
+    document.getElementById('copyLink').addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(location.href); alert('ページURLをコピーしました'); }catch(e){ alert('コピーに失敗しました'); }
+    });
+
+    document.getElementById('openInNew').addEventListener('click', ()=>{ window.open(location.href,'_blank'); });
+
+    // 初期表示
+    updateView();
+  </script>
+</body>
+</html>
